@@ -8,7 +8,7 @@ with all the file structure for beginning MODx Extra development pre-setup.
 
 First, clone this repository somewhere on your development machine:
 
-`git clone http://github.com/splittingred/modBoilerplate.git ./`
+`git clone http://github.com/antixrist/modBoilerplate.git ./`
 
 Then, create the target directory where you want to create the file.
 
@@ -52,6 +52,6 @@ name of your component is.
 ## Copyright Information
 
 modBoilerplate is distributed as GPL (as MODx Revolution is), but the copyright owner
-(Shaun McCormick) grants all users of modBoilerplate the ability to modify, distribute
+(antixrist) grants all users of modBoilerplate the ability to modify, distribute
 and use modBoilerplate in MODx development as they see fit, as long as attribution
 is given somewhere in the distributed source of all derivative works.
