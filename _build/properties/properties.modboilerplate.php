@@ -3,37 +3,36 @@
 $properties = array();
 
 $tmp = array(
-  'frontendCss' => array(
-    'xtype' => 'textfield',
-    'value' => '[[+assetsUrl]]css/web/styles.css',
-    'area' => 'modboilerplate.frontend',
-  ),
-  'frontendCssMinifyX' => array(
-    'xtype' => 'textfield',
-    'value' => '',
-//    json_encode(array(
+//  'frontendCss' => array(
+//    'xtype' => 'textfield',
+//    'value' => '[[+assetsUrl]]css/web/styles.css',
+//    'area' => 'modcrud.frontend',
+//  ),
+//  'frontendCssMinifyX' => array(
+//    'xtype' => 'textfield',
+//    'value' => json_encode(array(
 //      'minifyCss' => '0',
 //      'cacheFolder' => '/css/',
-//      'cssFilename' => 'modboilerplate',
+//      'cssFilename' => 'modcrud',
 //      'registerCss' => 'default',
-//    ))
-    'area' => 'modboilerplate.frontend',
-  ),
-  'frontendJs' => array(
-    'xtype' => 'textfield',
-    'value' => '[[+assetsUrl]]js/web/scripts.js',
-    'area' => 'modboilerplate.frontend',
-  ),
-  'frontendJsMinifyX' => array(
-    'xtype' => 'textfield',
-    'value' => json_encode(array(
-      'minifyJs' => '0',
-      'cacheFolder' => '/js/',
-      'cssFilename' => 'modboilerplate',
-      'registerJs' => 'default',
-    )),
-    'area' => 'modboilerplate.frontend',
-  ),
+//    )),
+//    'area' => 'modcrud.frontend',
+//  ),
+//  'frontendJs' => array(
+//    'xtype' => 'textfield',
+//    'value' => '[[+assetsUrl]]js/web/scripts.js',
+//    'area' => 'modcrud.frontend',
+//  ),
+//  'frontendJsMinifyX' => array(
+//    'xtype' => 'textfield',
+//    'value' => json_encode(array(
+//      'minifyJs' => '0',
+//      'cacheFolder' => '/js/',
+//      'cssFilename' => 'modcrud',
+//      'registerJs' => 'default',
+//    )),
+//    'area' => 'modcrud.frontend',
+//  ),
 
   'tpl' => array(
 		'type' => 'textfield',
