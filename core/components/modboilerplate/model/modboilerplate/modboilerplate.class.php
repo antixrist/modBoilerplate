@@ -116,7 +116,6 @@ HTML;
     $this->modx->regClientScript($jQuery, true);
 
     $config = $this->getArray($this->config['frontendJsMinifyX']);
-    if (count($config) == 1 && !trim($config[0])) { $config = array(); }
     if (count($config) && $this->minifyXexists) {
       $frontendJs = implode(",\n", $tmp);
       $this->modx->runSnippet('MinifyX', array_merge($config, array(
@@ -143,7 +142,6 @@ HTML;
     }
 
     $config = $this->getArray($this->config['frontendCssMinifyX']);
-    if (count($config) == 1 && !trim($config[0])) { $config = array(); }
     if (count($config) && $this->minifyXexists) {
       $frontendCss = implode(",\n", $tmp);
       $this->modx->runSnippet('MinifyX', array_merge($config, array(
