@@ -13,12 +13,11 @@ class modBoilerplate {
   /** @var bool $minifyXexists */
   private $minifyXexists = false;
 
-
   /**
    * @param modX $modx
    * @param array $config
    */
-  function __construct(modX &$modx, array $config = array()) {
+  function __construct (modX &$modx, array $config = array()) {
     $this->modx =& $modx;
 
     $corePath = $this->modx->getOption('modboilerplate.core_path', $config, $this->modx->getOption('core_path') . 'components/modboilerplate/');
@@ -60,15 +59,14 @@ class modBoilerplate {
   }
 
   /**
-   * Инициализирует класс в нужном контексте
+   * Initialize class in context
    *
    * @param string $ctx
    * @param array  $scriptProperties
    *
    * @return bool
    */
-  public function initialize($ctx = 'web', $scriptProperties = array()) {
-
+  public function initialize ($ctx = 'web', $scriptProperties = array()) {
     switch ($ctx) {
       case 'mgr': break;
       default:
@@ -90,14 +88,16 @@ class modBoilerplate {
 
           $this->initialized[$ctx] = true;
         }
-
+        break;
     }
 
     return true;
   }
 
   /**
-   * Load JS files
+   * Load frontend JS files
+   *
+   * @return void
    */
   public function loadJs () {
     $frontendJs = $this->getArray($this->config['frontendJs']);
@@ -109,7 +109,6 @@ class modBoilerplate {
     }
 
     $assetsUrl = $this->config['assetsUrl'];
-//    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     $jQuery = <<<HTML
     <script>window.jQuery || document.write('<script src="${assetsUrl}js/web/jquery-1.11.2.min.js"><\/script>')</script>
 HTML;
@@ -130,7 +129,9 @@ HTML;
   }
 
   /**
-   * Load CSS files
+   * Load frontend CSS files
+   *
+   * @return void
    */
   public function loadCss () {
     $frontendCss = $this->getArray($this->config['frontendCss']);
@@ -162,7 +163,7 @@ HTML;
    *
    * @return string String with html entities
    */
-  public function sanitizeString($string = '') {
+  public function sanitizeString ($string = '') {
     $string = htmlentities(trim($string), ENT_QUOTES, "UTF-8");
     $string = preg_replace('/^@.*\b/', '', $string);
     $arr1 = array('[',']','`');
@@ -171,16 +172,16 @@ HTML;
   }
 
   /**
-  /* Method for transform array to placeholders
+   * Method for transform array to placeholders
    *
    * @var array $array With keys and values
    * @var string $prefix Prefix string
    * @return array $array Two nested arrays With placeholders and values
    * */
-  public function makePlaceholders(array $array = array(), $prefix = '') {
+  public function makePlaceholders (array $array = array(), $prefix = '') {
     $result = array(
-      'pl' => array()
-    ,'vl' => array()
+      'pl' => array(),
+      'vl' => array()
     );
     foreach ($array as $k => $v) {
       if (is_array($v)) {
@@ -199,7 +200,7 @@ HTML;
    *
    * @return boolean
    */
-  public function loadPdoTools() {
+  public function loadPdoTools () {
     if (!is_object($this->pdoTools) || !($this->pdoTools instanceof pdoTools)) {
       $fqn = $this->modx->getOption('pdoFetch.class', null, 'pdotools.pdofetch', true);
       if ($pdoClass = $this->modx->loadClass($fqn, '', false, true)) {
@@ -223,7 +224,7 @@ HTML;
    * @param array $data Data to be transmitted to the processor
    * @return mixed The result of the processor
    */
-  public function runProcessor($action = '', $data = array()) {
+  public function runProcessor ($action = '', $data = array()) {
     if (empty($action)) {return false;}
     return $this->modx->runProcessor($action, $data, array('processors_path' => $this->config['processorsPath']));
   }
@@ -240,19 +241,19 @@ HTML;
     if (is_array($input)) {
       return $input;
     } else
-      if (is_string($input)) {
-        if (strpos(ltrim($input), '{') === 0) {
-          $tmp = $this->modx->fromJSON($input);
-          if ($tmp) {
-            return $tmp;
-          }
-        } else
-          // check for not empty string
-          if (trim($input)) {
-            $tmp = array_map('trim', explode($separator, $input));
-            return $tmp;
-          }
+    if (is_string($input)) {
+      if (strpos(ltrim($input), '{') === 0) {
+        $tmp = $this->modx->fromJSON($input);
+        if ($tmp) {
+          return $tmp;
+        }
+      } else
+      // check for not empty string
+      if (trim($input)) {
+        $tmp = array_map('trim', explode($separator, $input));
+        return $tmp;
       }
+    }
     return array();
   }
 
@@ -263,19 +264,20 @@ HTML;
    * @param integer $maxIterations
    * @return mixed $html Parsed html
    */
-  public function processTags($html, $maxIterations = 10) {
+  public function processTags ($html, $maxIterations = 10) {
     $this->modx->getParser()->processElementTags('', $html, false, false, '[[', ']]', array(), $maxIterations);
     $this->modx->getParser()->processElementTags('', $html, true, true, '[[', ']]', array(), $maxIterations);
     return $html;
   }
 
 
-  /** Function for formatting dates
+  /**
+   * Function for formatting dates
    *
    * @param string $date Source date
    * @return string $date Formatted date
    * */
-  public function formatDate($date = '') {
+  public function formatDate ($date = '') {
     $df = $this->modx->getOption('avk.date_format', null, '%d.%m.%Y %H:%M');
     return (!empty($date) && $date !== '0000-00-00 00:00:00') ? strftime($df, strtotime($date)) : '&nbsp;';
   }
@@ -284,12 +286,12 @@ HTML;
    * This method returns an error
    *
    * @param string $message A lexicon key for success message
-   * @param array $data.Additional data, for example cart status
+   * @param array $data Additional data
    * @param array $placeholders Array with placeholders for lexicon entry
    *
    * @return array|string $response
    */
-  public function error($message = '', $data = array(), $placeholders = array()) {
+  public function error ($message = '', $data = array(), $placeholders = array()) {
     $response = array(
       'success' => false,
       'message' => $this->modx->lexicon($message, $placeholders),
@@ -297,16 +299,17 @@ HTML;
     );
     return $this->config['json_response'] ? $this->modx->toJSON($response) : $response;
   }
+
   /**
    * This method returns an success
    *
    * @param string $message A lexicon key for success message
-   * @param array $data.Additional data, for example cart status
+   * @param array $data Additional data
    * @param array $placeholders Array with placeholders for lexicon entry
    *
    * @return array|string $response
    */
-  public function success($message = '', $data = array(), $placeholders = array()) {
+  public function success ($message = '', $data = array(), $placeholders = array()) {
     $response = array(
       'success' => true,
       'message' => $this->modx->lexicon($message, $placeholders),
@@ -315,10 +318,20 @@ HTML;
     return $this->config['json_response'] ? $this->modx->toJSON($response) : $response;
   }
 
-  public function result ($success, $message = '', $data = array()) {
+  /**
+   * This method returns an success or error result
+   *
+   * @param bool $success Success or error
+   * @param string $message A lexicon key for success message
+   * @param array $data Additional data
+   * @param array $placeholders Array with placeholders for lexicon entry
+   *
+   * @return array|string $response
+   */
+  public function result ($success, $message = '', $data = array(), $placeholders = array()) {
     $response = array(
-      'success' => ($success) ? true : false,
-      'message' => $message,
+      'success' => (!!$success) ? true : false,
+      'message' => $this->modx->lexicon($message, $placeholders),
       'data' => $data,
     );
     return $response;
