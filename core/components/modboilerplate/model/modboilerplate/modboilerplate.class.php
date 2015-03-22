@@ -24,9 +24,9 @@ class modBoilerplate {
     $assetsUrl = $this->modx->getOption('modboilerplate.assets_url', $config, $this->modx->getOption('assets_url') . 'components/modboilerplate/');
 
     $frontendCss = $this->modx->getOption('modboilerplate.frontendCss');
-    $minifyFrontendCss = $this->modx->getOption('modboilerplate.minifyFrontendCss');
+    $minifyFrontendCss = $this->modx->getOption('modboilerplate.frontendCssMinifyX');
     $frontendJs = $this->modx->getOption('modboilerplate.frontendJs');
-    $minifyFrontendJs = $this->modx->getOption('modboilerplate.minifyFrontendJs');
+    $minifyFrontendJs = $this->modx->getOption('modboilerplate.frontendJsMinifyX');
 
     $connectorUrl = $assetsUrl . 'connector.php';
 
@@ -49,9 +49,9 @@ class modBoilerplate {
       'processorsPath' => $corePath .'processors/',
 
       'frontendCss' => $frontendCss,
-      'minifyFrontendCss' => $minifyFrontendCss,
+      'frontendCssMinifyX' => $minifyFrontendCss,
       'frontendJs' => $frontendJs,
-      'minifyFrontendJs' => $minifyFrontendJs,
+      'frontendJsMinifyX' => $minifyFrontendJs,
     ), $config);
 
     $this->modx->addPackage('modboilerplate', $this->config['modelPath']);
