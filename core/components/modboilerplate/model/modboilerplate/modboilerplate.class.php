@@ -241,17 +241,20 @@ HTML;
   public function getArray ($input, $separator = ',') {
     if (is_array($input)) {
       return $input;
-    } else if (is_string($input)) {
-      if (strpos(ltrim($input), '{') === 0) {
-        $tmp = $this->modx->fromJSON($input);
-        if ($tmp) {
-          return $tmp;
-        }
-      } else {
-        $tmp = array_map('trim', explode($separator, $input));
-        return $tmp;
+    } else
+      if (is_string($input)) {
+        if (strpos(ltrim($input), '{') === 0) {
+          $tmp = $this->modx->fromJSON($input);
+          if ($tmp) {
+            return $tmp;
+          }
+        } else
+          // check for not empty string
+          if (trim($input)) {
+            $tmp = array_map('trim', explode($separator, $input));
+            return $tmp;
+          }
       }
-    }
     return array();
   }
 
