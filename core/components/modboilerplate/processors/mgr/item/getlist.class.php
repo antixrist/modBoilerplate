@@ -4,102 +4,70 @@
  * Get a list of Items
  */
 class modBoilerplateItemGetListProcessor extends modObjectGetListProcessor {
-	public $objectType = 'modBoilerplateItem';
-	public $classKey = 'modBoilerplateItem';
-	public $defaultSortField = 'id';
-	public $defaultSortDirection = 'DESC';
-	//public $permission = 'list';
+  public $objectType = '';
+  public $classKey = '';
+  public $languageTopics = array('modboilerplate');
+  public $primaryKeyField = 'id';
+  public $permission = '';
+  public $checkListPermission = false;
+  public $defaultSortField = 'id';
+  public $defaultSortDirection = 'DESC';
+  /** @var modBoilerplate $modBoilerplate */
+  public $modBoilerplate;
 
+  /**
+   * Load modBoilerplate to processor
+   *
+   * @return bool
+   */
+  public function loadClass() {
+    /** @noinspection PhpUndefinedFieldInspection */
+    if (!empty($this->modx->modBoilerplate) && $this->modx->dachaRai instanceof modBoilerplate) {
+      /** @noinspection PhpUndefinedFieldInspection */
+      $this->modBoilerplate = & $this->modx->modBoilerplate;
+    }
+    else {
+      $path = $this->modx->getOption('modboilerplate.core_path');
+      $path = ($path) ? $path : $this->modx->getOption('core_path') . 'components/modboilerplate/';
+      $path .= 'model/modboilerplate/';
+      /** @var modBoilerplate $modBoilerplate */
+      $modBoilerplate = $this->modx->getService('modBoilerplate', 'modBoilerplate', $path);
+      if (!($modBoilerplate instanceof modBoilerplate)) {
+        return 'Could not initialize modBoilerplate';
+      }
+    }
 
-	/**
-	 * * We doing special check of permission
-	 * because of our objects is not an instances of modAccessibleObject
-	 *
-	 * @return boolean|string
-	 */
-	public function beforeQuery() {
-		if (!$this->checkPermissions()) {
-			return $this->modx->lexicon('access_denied');
-		}
+    return $this->modBoilerplate instanceof modBoilerplate;
+  }
 
-		return true;
-	}
+  /**
+   * {@inheritDoc}
+   */
+  public function run() {
+    /** string|bool $loaded */
+    $loaded = $this->loadClass();
+    if ($loaded !== true) {
+      $response = new modProcessorResponse($this->modx, $this->failure($loaded));
+      return $response;
+    }
+    return parent::run();
+  }
 
-
-	/**
-	 * @param xPDOQuery $c
-	 *
-	 * @return xPDOQuery
-	 */
-	public function prepareQueryBeforeCount(xPDOQuery $c) {
-		$query = trim($this->getProperty('query'));
-		if ($query) {
-			$c->where(array(
-				'name:LIKE' => "%{$query}%",
-				'OR:description:LIKE' => "%{$query}%",
-			));
-		}
-
-		return $c;
-	}
-
-
-	/**
-	 * @param xPDOObject $object
-	 *
-	 * @return array
-	 */
-	public function prepareRow(xPDOObject $object) {
-		$array = $object->toArray();
-		$array['actions'] = array();
-
-		// Edit
-		$array['actions'][] = array(
-			'cls' => '',
-			'icon' => 'icon icon-edit',
-			'title' => $this->modx->lexicon('modboilerplate_item_update'),
-			//'multiple' => $this->modx->lexicon('modboilerplate_items_update'),
-			'action' => 'updateItem',
-			'button' => true,
-			'menu' => true,
-		);
-
-		if (!$array['active']) {
-			$array['actions'][] = array(
-				'cls' => '',
-				'icon' => 'icon icon-power-off action-green',
-				'title' => $this->modx->lexicon('modboilerplate_item_enable'),
-				'multiple' => $this->modx->lexicon('modboilerplate_items_enable'),
-				'action' => 'enableItem',
-				'button' => true,
-				'menu' => true,
-			);
-		}
-		else {
-			$array['actions'][] = array(
-				'cls' => '',
-				'icon' => 'icon icon-power-off action-gray',
-				'title' => $this->modx->lexicon('modboilerplate_item_disable'),
-				'multiple' => $this->modx->lexicon('modboilerplate_items_disable'),
-				'action' => 'disableItem',
-				'button' => true,
-				'menu' => true,
-			);
-		}
-
-		// Remove
-		$array['actions'][] = array(
-			'cls' => '',
-			'icon' => 'icon icon-trash-o action-red',
-			'title' => $this->modx->lexicon('modboilerplate_item_remove'),
-			'multiple' => $this->modx->lexicon('modboilerplate_items_remove'),
-			'action' => 'removeItem',
-			'button' => true,
-			'menu' => true,
-		);
-
-		return $array;
-	}
+  /**
+   * {@inheritDoc}
+   */
+  public function cleanup() {
+    $tmp = ($this->permission) ? $this->permission : $this->objectType;
+    return $this->success($this->modx->lexicon($tmp .'_success'),$this->object);
+  }
+  /**
+   * {@inheritDoc}
+   */
+  public function failure($msg = '',$object = null) {
+    $tmp = ($this->permission) ? $this->permission : $this->objectType;
+    $msg = ($msg) ? $msg : $this->modx->lexicon($tmp .'_err');
+    return $this->modx->error->failure($msg,$this->getProperties());
+  }
 
 }
 

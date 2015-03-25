@@ -12,6 +12,8 @@ class modBoilerplate {
   private $initialized = array();
   /** @var bool $minifyXexists */
   private $minifyXexists = false;
+  /** @var array $loadedModels */
+  private $loadedModels = array();
 
   /**
    * @param modX $modx
@@ -20,8 +22,10 @@ class modBoilerplate {
   function __construct (modX &$modx, array $config = array()) {
     $this->modx =& $modx;
 
-    $corePath = $this->modx->getOption('modboilerplate.core_path', $config, $this->modx->getOption('core_path') . 'components/modboilerplate/');
-    $assetsUrl = $this->modx->getOption('modboilerplate.assets_url', $config, $this->modx->getOption('assets_url') . 'components/modboilerplate/');
+    $assetsUrl = $modx->getOption('modboilerplate.assets_url');
+    $assetsUrl = ($assetsUrl) ? $assetsUrl : $modx->getOption('assets_url') . 'components/modboilerplate/';
+    $corePath = $modx->getOption('modboilerplate.core_path');
+    $corePath = ($corePath) ? $corePath : $modx->getOption('core_path') . 'components/modboilerplate/';
 
     $frontendCss = $this->modx->getOption('modboilerplate.frontendCss');
     $minifyFrontendCss = $this->modx->getOption('modboilerplate.frontendCssMinifyX');
@@ -70,13 +74,18 @@ class modBoilerplate {
     switch ($ctx) {
       case 'mgr': break;
       default:
-        if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
-          $this->config        = array_merge($this->config, $scriptProperties);
-          $this->config['ctx'] = $ctx;
-          if (!empty($this->initialized[$ctx])) {
-            return true;
-          }
+        $this->config        = array_merge($this->config, $scriptProperties);
+        $this->config['ctx'] = $ctx;
 
+        if (!empty($this->config['loadModels'])) {
+          $this->loadModels($this->config['loadModels']);
+        }
+
+        if (!empty($this->initialized[$ctx])) {
+          return true;
+        }
+
+        if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
           if ($this->modx->getCount('modSnippet', array('name' => 'MinifyX'))) {
             $this->minifyXexists = true;
           }
@@ -280,6 +289,52 @@ HTML;
   public function formatDate ($date = '') {
     $df = $this->modx->getOption('avk.date_format', null, '%d.%m.%Y %H:%M');
     return (!empty($date) && $date !== '0000-00-00 00:00:00') ? strftime($df, strtotime($date)) : '&nbsp;';
+  }
+
+  /**
+   * Loads specified list of packages models
+   *
+   * @param string|array $models
+   */
+  public function loadModels($models) {
+    if (empty($models)) {return;}
+
+    $_models = array();
+    if (strpos(ltrim($models), '{') === 0) {
+      $tmp = $this->modx->fromJSON($models);
+      foreach ($tmp as $k => $v) {
+        $v = trim(strtolower($v));
+        $_models[$k] = (strpos($v, MODX_CORE_PATH) === false)
+          ? MODX_CORE_PATH . ltrim($v, '/')
+          : $v;
+      }
+    }
+    else {
+      $tmp = array_map('trim', explode(',', $models));
+      foreach ($tmp as $v) {
+        $_models[$v] = MODX_CORE_PATH . 'components/'.strtolower($v).'/model/';
+      }
+    }
+
+    if (!empty($_models)) {
+      foreach ($_models as $k => $v) {
+        $t = '/' . str_replace(MODX_BASE_PATH, '', $v);
+        if (!$this->modx->addPackage(strtolower($k), $v)) {
+          $this->modx->log(modX::LOG_LEVEL_ERROR, '[crud] Could not load model "'.$k.'" from "'.$t);
+        } else {
+          $this->loadedModels[$k] = $t;
+        }
+      }
+    }
+  }
+
+  /**
+   * Return array of loaded models
+   *
+   * @return array
+   */
+  public function getLoadedModels () {
+    return $this->loadedModels;
   }
 
   /**
