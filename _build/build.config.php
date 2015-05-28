@@ -61,12 +61,12 @@ if (file_exists(MODX_BASE_PATH . '/assets')) {
 }
 
 /* define build options */
-define('BUILD_MENU_UPDATE', false);
-define('BUILD_ACTION_UPDATE', false);
-define('BUILD_EVENT_UPDATE', false);
-define('BUILD_POLICY_UPDATE', false);
-define('BUILD_POLICY_TEMPLATE_UPDATE', false);
-define('BUILD_PERMISSION_UPDATE', false);
+//define('BUILD_MENU_UPDATE', false);
+//define('BUILD_ACTION_UPDATE', false);
+//define('BUILD_EVENT_UPDATE', false);
+//define('BUILD_POLICY_UPDATE', false);
+//define('BUILD_POLICY_TEMPLATE_UPDATE', false);
+//define('BUILD_PERMISSION_UPDATE', false);
 
 define('BUILD_SETTING_UPDATE', true);
 define('BUILD_CHUNK_UPDATE', true);
@@ -82,6 +82,6 @@ define('BUILD_TEMPLATE_STATIC', PKG_DEV);
 $BUILD_RESOLVERS = array(
 	'tables',
 	'chunks',
-  //'setup',
+//  'setup',
   'deploy',
 );

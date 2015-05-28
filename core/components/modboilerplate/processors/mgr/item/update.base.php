@@ -1,46 +1,50 @@
 <?php
 
 /**
- * Remove an Items
+ * Base Update an Item
  */
-class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
+class modBoilerplateItemUpdateBaseProcessor extends modObjectUpdateProcessor {
   public $objectType = 'item';
   public $classKey = 'modBoilerplateItem';
   public $languageTopics = array('modboilerplate:item');
   public $primaryKeyField = 'id';
+  public $checkSavePermission = false;
 
   public $defaultOwnerField = '';
   public $defaultOwnerClassKey = '';
   //=//
-  public $permission = 'modboilerplate_item_remove';
-  public $permission_activated = 'modboilerplate_item_remove_activated';
-  public $permission_deactivated = 'modboilerplate_item_remove_deactivated';
-  public $permission_published = 'modboilerplate_item_remove_published';
-  public $permission_unpublished = 'modboilerplate_item_remove_unpublished';
-  public $permission_deleted = 'modboilerplate_item_remove_deleted';
+  public $permission = 'modboilerplate_item_edit';
+  public $permission_activate = 'modboilerplate_item_activate';
+  public $permission_deactivate = 'modboilerplate_item_deactivate';
+  public $permission_publish = 'modboilerplate_item_publish';
+  public $permission_unpublish = 'modboilerplate_item_unpublish';
+  public $permission_delete = 'modboilerplate_item_delete';
+  public $permission_restore = 'modboilerplate_item_restore';
   //или//
-  public $permission_owner = 'modboilerplate_item_remove_owner';
-  public $permission_colleague = 'modboilerplate_item_remove_colleague';
-  public $permission_another = 'modboilerplate_item_remove_another';
-  public $permission_activated_owner = 'modboilerplate_item_remove_activated_owner';
-  public $permission_activated_colleague = 'modboilerplate_item_remove_activated_colleague';
-  public $permission_activated_another = 'modboilerplate_item_remove_activated_another';
-  public $permission_deactivated_owner = 'modboilerplate_item_remove_deactivated_owner';
-  public $permission_deactivated_colleague = 'modboilerplate_item_remove_deactivated_colleague';
-  public $permission_deactivated_another = 'modboilerplate_item_remove_deactivated_another';
-  public $permission_published_owner = 'modboilerplate_item_remove_published_owner';
-  public $permission_published_colleague = 'modboilerplate_item_remove_published_colleague';
-  public $permission_published_another = 'modboilerplate_item_remove_published_another';
-  public $permission_unpublished_owner = 'modboilerplate_item_remove_unpublished_owner';
-  public $permission_unpublished_colleague = 'modboilerplate_item_remove_unpublished_colleague';
-  public $permission_unpublished_another = 'modboilerplate_item_remove_unpublished_another';
-  public $permission_deleted_owner = 'modboilerplate_item_remove_deleted_owner';
-  public $permission_deleted_colleague = 'modboilerplate_item_remove_deleted_colleague';
-  public $permission_deleted_another = 'modboilerplate_item_remove_deleted_another';
+  public $permission_owner = 'modboilerplate_item_edit_owner';
+  public $permission_colleague = 'modboilerplate_item_edit_colleague';
+  public $permission_another = 'modboilerplate_item_edit_another';
+  public $permission_activate_owner = 'modboilerplate_item_activate_owner';
+  public $permission_activate_colleague = 'modboilerplate_item_activate_colleague';
+  public $permission_activate_another = 'modboilerplate_item_activate_another';
+  public $permission_deactivate_owner = 'modboilerplate_item_deactivate_owner';
+  public $permission_deactivate_colleague = 'modboilerplate_item_deactivate_colleague';
+  public $permission_deactivate_another = 'modboilerplate_item_deactivate_another';
+  public $permission_publish_owner = 'modboilerplate_item_publish_owner';
+  public $permission_publish_colleague = 'modboilerplate_item_publish_colleague';
+  public $permission_publish_another = 'modboilerplate_item_publish_another';
+  public $permission_unpublish_owner = 'modboilerplate_item_unpublish_owner';
+  public $permission_unpublish_colleague = 'modboilerplate_item_unpublish_colleague';
+  public $permission_unpublish_another = 'modboilerplate_item_unpublish_another';
+  public $permission_delete_owner = 'modboilerplate_item_delete_owner';
+  public $permission_delete_colleague = 'modboilerplate_item_delete_colleague';
+  public $permission_delete_another = 'modboilerplate_item_delete_another';
+  public $permission_restore_owner = 'modboilerplate_item_restore_owner';
+  public $permission_restore_colleague = 'modboilerplate_item_restore_colleague';
+  public $permission_restore_another = 'modboilerplate_item_restore_another';
   //=//
-  public $checkRemovePermission = false;
-  public $beforeRemoveEvent = 'modBoilerplateItemBeforeRemove';
-  public $afterRemoveEvent = 'modBoilerplateItemAfterRemove';
+  public $beforeSaveEvent = 'modBoilerplateItemBeforeSave';
+  public $afterSaveEvent = 'modBoilerplateItemAfterSave';
   /** @var modBoilerplate $modBoilerplate */
   public $modBoilerplate;
 
@@ -80,6 +84,7 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
       $response = new modProcessorResponse($this->modx, $this->failure($loaded));
       return $response;
     }
+
     return parent::run();
   }
 
@@ -114,7 +119,6 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
     if ($onlyCheckPermissions) {
       return $this->success();
     }
-
     return parent::process();
   }
 
@@ -125,9 +129,11 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
    */
   public function getDefaultProperties () {
     return array(
+      'deleted' => 0,
+      'published' => 0,
+      'active' => 0,
       'only_check_permissions' => 0,
       'checkByRelatedObjects' => 1,
-      'dontRemoveIfHasChilds' => 1,
     );
   }
 
@@ -135,19 +141,6 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
    * @return bool
    */
   public function checkByRelatedObjects () {
-    if ($this->getProperty('dontRemoveIfHasChilds', false)) {
-      if ($relatedObjs = array_merge($this->object->_aggregates, $this->object->_composites)) {
-        foreach ($relatedObjs as $aAlias => $aMeta) {
-          if (
-            ($aMeta['cardinality'] == 'many' && $aMeta['owner'] == 'local' && count($this->object->getMany($aAlias))) ||
-            ($aMeta['cardinality'] == 'one' && $aMeta['owner'] == 'local' && $this->object->getOne($aAlias))
-          ) {
-            return $this->modx->lexicon($this->objectType . '_has_childs');
-          }
-        }
-      }
-    }
-
     return true;
   }
 
@@ -157,6 +150,10 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
    * @return bool|null|string
    */
   public function initializeForCustomPermissions () {
+    $this->setCheckbox('deleted', 1);
+    $this->setCheckbox('active', 1);
+    $this->setCheckbox('published', 1);
+
 //    if (($currentUser = $this->modx->getAuthenticatedUser()) && $currentUser->get('sudo')) { return true; }
 
     if ($this->getProperty('checkByRelatedObjects', false)) {
@@ -185,6 +182,40 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
   }
 
   /**
+   * @return array
+   */
+  public function getConfigForCheckCommonCustomPermissions () {
+    $config = array(
+      $this->permission_activate => array(
+        'field' => 'active',
+        'value' => 1,
+        'oppositeFor' => $this->permission_deactivate,
+      ),
+      $this->permission_deactivate => array(
+        'field' => 'active',
+        'value' => 0,
+        'oppositeFor' => $this->permission_activate,
+      ),
+      $this->permission_publish => array(
+        'field' => 'published',
+        'value' => 1,
+        'oppositeFor' => $this->permission_unpublish,
+      ),
+      $this->permission_unpublish => array(
+        'field' => 'published',
+        'value' => 0,
+        'oppositeFor' => $this->permission_publish,
+      ),
+      $this->permission_delete => array(
+        'field' => 'deleted',
+        'value' => 1,
+      ),
+    );
+
+    return $config;
+  }
+
+  /**
    * @param array $config
    *
    * @return bool
@@ -200,42 +231,6 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
   }
 
   /**
-   * @return array
-   */
-  public function getConfigForCheckCommonCustomPermissions () {
-    $config = array(
-      $this->permission_activated => array(
-        'field' => 'active',
-        'value' => 1,
-        'oppositeFor' => $this->permission_deactivated,
-      ),
-      $this->permission_deactivated => array(
-        'field' => 'active',
-        'value' => 0,
-        'oppositeFor' => $this->permission_activated,
-      ),
-      $this->permission_published => array(
-        'field' => 'published',
-        'value' => 1,
-        'oppositeFor' => $this->permission_unpublished,
-      ),
-      $this->permission_unpublished => array(
-        'field' => 'published',
-        'value' => 0,
-        'oppositeFor' => $this->permission_published,
-      ),
-      $this->permission_deleted => array(
-        'field' => 'deleted',
-        'value' => 1,
-      ),
-    );
-
-    return $config;
-  }
-
-  /**
-   * Check custom permissions here
-   *
    * @return bool|null|string
    */
   public function checkCustomPermissionsByOwner () {
@@ -256,8 +251,10 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
     }
 
     if ($objectOwnerId) {
+
       if ($objectOwnerId === $currentUserId) {
 
+        // проверяем текущие права
         if ($this->modx->hasPermission($this->permission_owner)) {
           $result = $this->checkCustomPermissionsFromConfig($this->getConfigForCheckCustomPermissionsOwner());
         } else {
@@ -272,26 +269,29 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
 
           if ($this->modx->hasPermission($this->permission_colleague)) {
             // если есть, то проверяем остальные права
-            $result = $this->checkCustomPermissionsFromConfig($this->getConfigForCheckCustomPermissionsColleague());
+            $result = $this->checkCustomPermissionsFromConfig($this->getConfigForCheckCustomPermissionsOwner());
           } else {
             // если нет - выкидываем ошибку
             $result = $this->modx->lexicon($this->permission_colleague . '_access_denied');
           }
+
         }
         // проверяем на всех остальных
         else {
+
           if ($this->modx->hasPermission($this->permission_another)) {
             // если есть, то проверяем остальные права
-            $result = $this->checkCustomPermissionsFromConfig($this->getConfigForCheckCustomPermissionsAnother());
+            $result = $this->checkCustomPermissionsFromConfig($this->getConfigForCheckCustomPermissionsOwner());
           } else {
             // если нет - выкидываем ошибку
             $result = $this->modx->lexicon($this->permission_another . '_access_denied');
           }
+
         }
       }
 
     } else {
-      $result = $this->modx->lexicon($this->objectType . '_err_nfs');
+      return $this->modx->lexicon($this->objectType . '_err_nfs');
     }
 
     return $result;
@@ -302,27 +302,27 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
    */
   public function getConfigForCheckCustomPermissionsOwner () {
     $config = array(
-      $this->permission_activated_owner => array(
+      $this->permission_activate_owner => array(
         'field' => 'active',
         'value' => 1,
-        'oppositeFor' => $this->permission_deactivated_owner,
+        'oppositeFor' => $this->permission_deactivate_owner,
       ),
-      $this->permission_deactivated_owner => array(
+      $this->permission_deactivate_owner => array(
         'field' => 'active',
         'value' => 0,
-        'oppositeFor' => $this->permission_activated_owner,
+        'oppositeFor' => $this->permission_activate_owner,
       ),
-      $this->permission_published_owner => array(
+      $this->permission_publish_owner => array(
         'field' => 'published',
         'value' => 1,
-        'oppositeFor' => $this->permission_unpublished_owner,
+        'oppositeFor' => $this->permission_unpublish_owner,
       ),
-      $this->permission_unpublished_owner => array(
+      $this->permission_unpublish_owner => array(
         'field' => 'published',
         'value' => 0,
-        'oppositeFor' => $this->permission_published_owner,
+        'oppositeFor' => $this->permission_publish_owner,
       ),
-      $this->permission_deleted_owner => array(
+      $this->permission_delete_owner => array(
         'field' => 'deleted',
         'value' => 1,
       ),
@@ -336,27 +336,27 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
    */
   public function getConfigForCheckCustomPermissionsColleague () {
     $config = array(
-      $this->permission_activated_colleague => array(
+      $this->permission_activate_colleague => array(
         'field' => 'active',
         'value' => 1,
-        'oppositeFor' => $this->permission_deactivated_colleague,
+        'oppositeFor' => $this->permission_deactivate_colleague,
       ),
-      $this->permission_deactivated_colleague => array(
+      $this->permission_deactivate_colleague => array(
         'field' => 'active',
         'value' => 0,
-        'oppositeFor' => $this->permission_activated_colleague,
+        'oppositeFor' => $this->permission_activate_colleague,
       ),
-      $this->permission_published_colleague => array(
+      $this->permission_publish_colleague => array(
         'field' => 'published',
         'value' => 1,
-        'oppositeFor' => $this->permission_unpublished_colleague,
+        'oppositeFor' => $this->permission_unpublish_colleague,
       ),
-      $this->permission_unpublished_colleague => array(
+      $this->permission_unpublish_colleague => array(
         'field' => 'published',
         'value' => 0,
-        'oppositeFor' => $this->permission_published_colleague,
+        'oppositeFor' => $this->permission_publish_colleague,
       ),
-      $this->permission_deleted_colleague => array(
+      $this->permission_delete_colleague => array(
         'field' => 'deleted',
         'value' => 1,
       ),
@@ -370,27 +370,27 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
    */
   public function getConfigForCheckCustomPermissionsAnother () {
     $config = array(
-      $this->permission_activated_another => array(
+      $this->permission_activate_another => array(
         'field' => 'active',
         'value' => 1,
-        'oppositeFor' => $this->permission_deactivated_another,
+        'oppositeFor' => $this->permission_deactivate_another,
       ),
-      $this->permission_deactivated_another => array(
+      $this->permission_deactivate_another => array(
         'field' => 'active',
         'value' => 0,
-        'oppositeFor' => $this->permission_activated_another,
+        'oppositeFor' => $this->permission_activate_another,
       ),
-      $this->permission_published_another => array(
+      $this->permission_publish_another => array(
         'field' => 'published',
         'value' => 1,
-        'oppositeFor' => $this->permission_unpublished_another,
+        'oppositeFor' => $this->permission_unpublish_another,
       ),
-      $this->permission_unpublished_another => array(
+      $this->permission_unpublish_another => array(
         'field' => 'published',
         'value' => 0,
-        'oppositeFor' => $this->permission_published_another,
+        'oppositeFor' => $this->permission_publish_another,
       ),
-      $this->permission_deleted_another => array(
+      $this->permission_delete_another => array(
         'field' => 'deleted',
         'value' => 1,
       ),
@@ -409,12 +409,100 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
    * @return bool|null|string
    */
   public function checkPermissionByFieldValue ($field, $neededValue, $permission) {
-    $result = true;
-    if ($neededValue == $this->object->get($field) && !$this->modx->hasPermission($permission)) {
-      $result = $this->modx->lexicon($permission . '_access_denied');
+    $value = $this->getProperty($field, null);
+    if ($value !== null && $value != $this->object->get($field)) {
+      if ($value == $neededValue && !$this->modx->hasPermission($permission)) {
+//        $this->addFieldError($field, $this->modx->lexicon($permission . '_access_denied'));
+        return $this->modx->lexicon($permission . '_access_denied');
+      }
+    } else {
+      $this->unsetProperty($field);
     }
 
-    return $result;
+    return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function beforeSet() {
+    $currentUserId = $this->modx->getLoginUserID();
+    $time = time();
+    $this->unsetProperty('createdby');
+    $this->unsetProperty('createdon');
+
+    $this->setProperty('editedby', $currentUserId);
+    $this->setProperty('editedon', $time);
+
+    $propertyValue = $this->getProperty('deleted', null);
+    if ($propertyValue !== null) {
+      if ($propertyValue) {
+        $this->setProperty('deletedby', $currentUserId);
+        $this->setProperty('deletedon', $time);
+      } else {
+        $this->setProperty('restoredby', $currentUserId);
+        $this->setProperty('restoredon', $time);
+      }
+    }
+
+    $propertyValue = $this->getProperty('active', null);
+    if ($propertyValue !== null) {
+      if ($propertyValue) {
+        $this->setProperty('activatedby', $currentUserId);
+        $this->setProperty('activatedon', $time);
+      } else {
+        $this->setProperty('deactivatedby', $currentUserId);
+        $this->setProperty('deactivatedon', $time);
+      }
+    }
+
+    $propertyValue = $this->getProperty('published', null);
+    if ($propertyValue !== null) {
+      if ($propertyValue) {
+        $this->setProperty('publishedby', $currentUserId);
+        $this->setProperty('publishedon', $time);
+      } else {
+        $this->setProperty('unpublishedby', $currentUserId);
+        $this->setProperty('unpublishedon', $time);
+      }
+    }
+
+    return !$this->hasErrors();
+  }
+
+  /**
+   * Unset all properties (exclude primary keys by default).
+   *
+   * @param bool $excludePrimaries
+   */
+  public function unsetProperties ($excludePrimaries = true) {
+    $primaryKeys = array();
+    if ($excludePrimaries) {
+      $primaryKeys = $this->getPrimaryKeys();
+    }
+
+    foreach ($this->getProperties() as $k => $v) {
+      if (in_array($k, $primaryKeys)) {
+        continue;
+      }
+      $this->unsetProperty($k);
+    }
+  }
+
+  /**
+   * @return array
+   */
+  public function getPrimaryKeys () {
+    $primaryKeys = array();
+    if (is_array($this->primaryKeyField)) {
+      foreach ($this->primaryKeyField as $field) {
+        $primaryKeys[] = $field;
+      }
+    } else if (is_string($this->primaryKeyField) && $this->primaryKeyField) {
+      $primaryKeys[] = $this->primaryKeyField;
+    }
+
+    return $primaryKeys;
   }
 
   /**
@@ -437,4 +525,3 @@ class modBoilerplateItemRemoveProcessor extends modObjectRemoveProcessor {
 
 }
 
-return 'modBoilerplateItemRemoveProcessor';

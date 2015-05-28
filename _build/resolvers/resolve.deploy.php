@@ -6,26 +6,8 @@
  * @var array $options
  */
 
-if ($object->xpdo) {
-  /* @var modX $modx */
-  $modx =& $object->xpdo;
-
-
-  switch ($options[xPDOTransport::PACKAGE_ACTION]) {
-    case xPDOTransport::ACTION_INSTALL:
-
-      break;
-    case xPDOTransport::ACTION_UPGRADE:
-
-      break;
-    case xPDOTransport::ACTION_UNINSTALL:
-
-      break;
-  }
-}
-
 /*---------------------------------*/
-if (!function_exists('deployResource')) {
+if (!function_exists('changeSetting')) {
   function changeSetting ($key = '', $value, $config = array()) {
     global $modx;
     if (empty($key)) {
@@ -49,7 +31,7 @@ if (!function_exists('deployResource')) {
 }
 
 if (!function_exists('deployResource')) {
-  function deployResource ($search = array(), $data = array(), $setting = '', $tpl = 'modBoilerplate') {
+  function deployResource ($search = array(), $data = array(), $setting = '', $namespace = 'modboilerplate', $tpl = 'modBoilerplate') {
     global $modx;
 
     if ($resId = $modx->getOption($setting)) {
@@ -60,8 +42,8 @@ if (!function_exists('deployResource')) {
       $resource = $resource->toArray();
     } else {
       if ($tpl && $Tpl = $modx->getObject('modTemplate', array(
-        'templatename' => $tpl
-      ))) {
+          'templatename' => $tpl
+        ))) {
         $data['template'] = $Tpl->get('id');
       }
 
@@ -93,11 +75,31 @@ if (!function_exists('deployResource')) {
 
     if ($resource) {
       changeSetting($setting, $resource['id'], array(
-        'namespace' => 'modBoilerplate'
+        'namespace' => $namespace
       ));
     }
   }
 }
+/*---------------------------------*/
 
+if ($object->xpdo) {
+  /* @var modX $modx */
+  $modx =& $object->xpdo;
+
+  switch ($options[xPDOTransport::PACKAGE_ACTION]) {
+    case xPDOTransport::ACTION_INSTALL:
+//      changeSetting('mse2_filters_handler_class', 'modBoilerplateFiltersHandler', array(
+//        'namespace' => 'msearch2'
+//      ));
+
+      break;
+    case xPDOTransport::ACTION_UPGRADE:
+
+      break;
+    case xPDOTransport::ACTION_UNINSTALL:
+
+      break;
+  }
+}
 
 return true;

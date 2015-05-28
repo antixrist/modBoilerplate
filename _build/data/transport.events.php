@@ -3,7 +3,24 @@
 $events = array();
 
 $tmp = array(
-//  'someEventName',
+  'modBoilerplateItemBeforeSave',
+  'modBoilerplateItemAfterSave',
+  'modBoilerplateItemBeforeRemove',
+  'modBoilerplateItemAfterRemove',
+  'modBoilerplateItemBeforeSave',
+  'modBoilerplateItemAfterSave',
+  'modBoilerplateItemBeforeActivate',
+  'modBoilerplateItemAfterActivate',
+  'modBoilerplateItemBeforeDeactivate',
+  'modBoilerplateItemAfterDeactivate',
+  'modBoilerplateItemBeforeDelete',
+  'modBoilerplateItemAfterDelete',
+  'modBoilerplateItemBeforeRestore',
+  'modBoilerplateItemAfterRestore',
+  'modBoilerplateItemBeforePublish',
+  'modBoilerplateItemAfterPublish',
+  'modBoilerplateItemBeforeUnpublish',
+  'modBoilerplateItemAfterUnpublish',
 );
 
 foreach ($tmp as $k => $v) {

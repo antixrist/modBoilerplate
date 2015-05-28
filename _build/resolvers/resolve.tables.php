@@ -28,7 +28,7 @@ if ($object->xpdo) {
 			}
 
       $modx->removeExtensionPackage('modboilerplate');
-      $modx->addExtensionPackage('modboilerplate', $modx->getOption('modboilerplate.core_path', null, '[[++core_path]]components/modboilerplate/') .'model/modboilerplate/');
+      $modx->addExtensionPackage('modboilerplate', $modx->getOption('modboilerplate.core_path', null, '[[++core_path]]components/modboilerplate/') .'model/');
 
       $level = $modx->getLogLevel();
       $modx->setLogLevel(xPDO::LOG_LEVEL_FATAL);

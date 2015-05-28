@@ -1,17 +1,17 @@
 <?
 /**
- * Delete an Item
+ * Restore an Item
  */
 
 require_once (dirname(__FILE__) .'/update.base.php');
 
-class modBoilerplateItemDeleteProcessor extends modBoilerplateItemUpdateBaseProcessor {
+class modBoilerplateItemRestoreProcessor extends modBoilerplateItemUpdateBaseProcessor {
   public $permission = '';
-  public $permission_owner = 'modboilerplate_item_delete_owner';
-  public $permission_colleague = 'modboilerplate_item_delete_colleague';
-  public $permission_another = 'modboilerplate_item_delete_another';
-  public $beforeSaveEvent = 'modBoilerplateItemBeforeDelete';
-  public $afterSaveEvent = 'modBoilerplateItemAfterDelete';
+  public $permission_owner = 'modboilerplate_item_restore_owner';
+  public $permission_colleague = 'modboilerplate_item_restore_colleague';
+  public $permission_another = 'modboilerplate_item_restore_another';
+  public $beforeSaveEvent = 'modBoilerplateItemBeforeRestore';
+  public $afterSaveEvent = 'modBoilerplateItemAfterRestore';
 
   /**
    * {@inheritDoc}
@@ -40,9 +40,9 @@ class modBoilerplateItemDeleteProcessor extends modBoilerplateItemUpdateBaseProc
   public function beforeSet() {
     $this->unsetProperties();
 
-    $this->setProperty('deleted', 1);
-    $this->setProperty('deletedon', time());
-    $this->setProperty('deletedby', $this->modx->getLoginUserID());
+    $this->setProperty('deleted', 0);
+    $this->setProperty('restoredon', time());
+    $this->setProperty('restoredby', $this->modx->getLoginUserID());
 
     return !$this->hasErrors();
   }

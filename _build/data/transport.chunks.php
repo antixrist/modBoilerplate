@@ -3,7 +3,9 @@
 $chunks = array();
 
 $tmp = array(
-	'tpl.modBoilerplate.item' => 'tpl.modboilerplate.item',
+  'tpl.modBoilerplate.item' => 'tpl.modboilerplate.item',
+  'tpl.mFilter2.filter.daterange.row' => 'mfilter2.filter.daterange.row',
+  'tpl.mFilter2.filter.daterange.outer' => 'mfilter2.filter.daterange.outer',
 );
 
 // Save chunks for setup options
@@ -14,12 +16,12 @@ foreach ($tmp as $k => $v) {
   $chunk = $modx->newObject('modChunk');
   $chunk->fromArray(array(
     'id' => 0
-    ,'name' => $k
-    ,'description' => ''
-    ,'snippet' => file_get_contents($sources['source_core'].'/elements/chunks/chunk.'. $v .'.html')
-    ,'static' => BUILD_CHUNK_STATIC
-    ,'source' => 1
-    ,'static_file' => ''
+  ,'name' => $k
+  ,'description' => ''
+  ,'snippet' => @file_get_contents($sources['source_core'].'elements/chunks/chunk.'. $v .'.html')
+  ,'static' => BUILD_CHUNK_STATIC
+  ,'source' => 1
+  ,'static_file' => ''
   ),'',true,true);
 
   if (BUILD_CHUNK_STATIC) {
@@ -31,7 +33,7 @@ foreach ($tmp as $k => $v) {
 
   $chunks[] = $chunk;
 
-  $BUILD_CHUNKS[$k] = file_get_contents($sources['source_core'] . '/elements/chunks/chunk.' . $v . '.html');
+  $BUILD_CHUNKS[$k] = @file_get_contents($sources['source_core'] . '/elements/chunks/chunk.' . $v . '.html');
 }
 
 unset($tmp);

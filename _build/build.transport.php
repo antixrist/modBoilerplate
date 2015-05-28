@@ -36,6 +36,7 @@ $sources = array(
   'pages' => $root.'core/components/'.PKG_NAME_LOWER.'/elements/pages/',
   'source_assets' => $root.'assets/components/'.PKG_NAME_LOWER .'/',
   'source_core' => $root.'core/components/'.PKG_NAME_LOWER .'/',
+  'msearch2_core' => $root.'core/components/msearch2/',
 );
 unset($root);
 
@@ -242,7 +243,7 @@ if (defined('BUILD_TEMPLATE_UPDATE')) {
     $categoryVehicleAttributes[xPDOTransport::RELATED_OBJECT_ATTRIBUTES]['Templates'] = array(
       xPDOTransport::PRESERVE_KEYS => false,
       xPDOTransport::UPDATE_OBJECT => BUILD_TEMPLATE_UPDATE,
-      xPDOTransport::UNIQUE_KEY => 'name',
+      xPDOTransport::UNIQUE_KEY => 'templatename',
     );
     $category->addMany($templates);
     $modx->log(modX::LOG_LEVEL_INFO, 'Packaged in ' . count($templates) . ' templates.');
@@ -258,6 +259,10 @@ $vehicle->resolve('file',array(
 ));
 $vehicle->resolve('file',array(
   'source' => $sources['source_core'],
+  'target' => "return MODX_CORE_PATH . 'components/';",
+));
+$vehicle->resolve('file',array(
+  'source' => $sources['msearch2_core'],
   'target' => "return MODX_CORE_PATH . 'components/';",
 ));
 

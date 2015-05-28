@@ -1,0 +1,15 @@
+<span class="col col-xs-6 col-sm-6">[[+idx:is=`0`:then=`min`:else=`max`:toPlaceholder=`daterange.type`]]
+  <input type="text"
+         class="form-control input-sm"
+         data-mse2-daterange
+         data-mse2-daterange-target-name="[[+table]][[+delimeter]][[+filter]]"
+         data-mse2-daterange-target-type="[[+daterange.type]]" />
+
+  <input type="hidden"
+         id="mse2_[[+table]][[+delimeter]][[+filter]]_[[+idx]]"
+         name="[[+table]][[+delimeter]][[+filter]]"
+         value="[[+value]]"
+
+         data-mse2-daterange-name="[[+table]][[+delimeter]][[+filter]]"
+         data-mse2-daterange-type="[[+daterange.type]]" />
+</span>

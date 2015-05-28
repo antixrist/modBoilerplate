@@ -10,7 +10,7 @@ $tmp = array(
 //	),
   'frontendCss' => array(
     'xtype' => 'textfield',
-    'value' => '[[+assetsUrl]]css/web/styles.css',
+    'value' => '[[+cssUrl]]web/styles.css',
     'area' => 'modboilerplate.frontend',
   ),
   'frontendCssMinifyX' => array(
@@ -20,7 +20,7 @@ $tmp = array(
   ),
   'frontendJs' => array(
     'xtype' => 'textfield',
-    'value' => '[[+assetsUrl]]js/web/scripts.js',
+    'value' => '[[+jsUrl]]web/scripts.js',
     'area' => 'modboilerplate.frontend',
   ),
   'frontendJsMinifyX' => array(
@@ -73,8 +73,8 @@ foreach ($tmp as $k => $v) {
 	$setting = $modx->newObject('modSystemSetting');
 	$setting->fromArray(array_merge(
 		array(
-			'key' => 'modboilerplate.' . $k,
-			'namespace' => 'modboilerplate'
+			'key' => PKG_NAME_LOWER .'.' . $k,
+			'namespace' => PKG_NAME_LOWER
 		), $v
 	), '', true, true);
 
